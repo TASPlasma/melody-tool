@@ -18,6 +18,10 @@ class Rhythm:
     - 1 beat = 1 quarter note.
     - tempo_bpm is quarter-notes per minute.
     - ppq is ticks per quarter note (a.k.a. TPQN).
+
+    Implementation notes:
+    - We store `beats` as a `fractions.Fraction` so dotted/triplet values can be exact.
+    - Conversions that must be integer (ticks) round to the nearest tick.
     """
 
     beats: Fraction
@@ -25,6 +29,7 @@ class Rhythm:
     # -------- constructors --------
     @staticmethod
     def from_beats(beats: float | int | Fraction) -> "Rhythm":
+        # Accept floats/ints for convenience but store as a Fraction for stable conversions.
         if isinstance(beats, Fraction):
             b = beats
         else:
@@ -35,6 +40,7 @@ class Rhythm:
 
     @staticmethod
     def from_seconds(seconds: float, *, tempo_bpm: float) -> "Rhythm":
+        # Convert real time to musical time using tempo.
         if seconds <= 0:
             raise ValueError("seconds must be > 0")
         bpm = float(tempo_bpm)
@@ -45,6 +51,7 @@ class Rhythm:
 
     @staticmethod
     def from_ticks(ticks: int, *, ppq: int) -> "Rhythm":
+        # Convert MIDI ticks to beats using PPQ (ticks per quarter note).
         if ticks <= 0:
             raise ValueError("ticks must be > 0")
         if ppq <= 0:
@@ -67,6 +74,7 @@ class Rhythm:
 
         dotted = s.endswith(".")
         triplet = s.endswith("t")
+        # We treat dotted and triplet as mutually exclusive modifiers.
         if dotted and triplet:
             raise ValueError("symbol cannot be both dotted and triplet")
         if dotted or triplet:
@@ -84,6 +92,7 @@ class Rhythm:
         return self.beats
 
     def to_seconds(self, *, tempo_bpm: float) -> float:
+        # 1 beat (quarter) = 60 / BPM seconds
         bpm = float(tempo_bpm)
         if bpm <= 0:
             raise ValueError("tempo_bpm must be > 0")
@@ -92,7 +101,7 @@ class Rhythm:
     def to_ticks(self, *, ppq: int) -> int:
         if ppq <= 0:
             raise ValueError("ppq must be > 0")
-        # Round to nearest tick.
+        # MIDI time is discrete; we round to nearest tick.
         return int(round(float(self.beats * int(ppq))))
 
     def to_symbol(self, *, allowed: Optional[list[str]] = None) -> str:
@@ -127,7 +136,7 @@ class Rhythm:
 
 
 def _symbol_to_beats(base_symbol: str) -> Fraction:
-    # Shorthands
+    # Shorthands (common “note value” letters).
     shorthand = {
         "w": Fraction(4, 1),  # whole = 4 beats
         "h": Fraction(2, 1),  # half = 2 beats
@@ -139,7 +148,7 @@ def _symbol_to_beats(base_symbol: str) -> Fraction:
     if base_symbol in shorthand:
         return shorthand[base_symbol]
 
-    # Fractional: "1/8" etc, interpreted as a note-value fraction of a whole note.
+    # Fractional: "1/8" etc, interpreted as a fraction of a whole note.
     if "/" in base_symbol:
         num_s, den_s = base_symbol.split("/", 1)
         num = int(num_s)

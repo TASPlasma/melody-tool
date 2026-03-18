@@ -31,8 +31,14 @@ name_dict = {
 
 class Note:
     """
-    A class to represent a note in the chromatic scale.
-    A note is a number between 0 and 127
+    Minimal note wrapper around a MIDI note number.
+
+    - `note` is an integer MIDI note number (commonly 0..127)
+    - `note_base` is the pitch class (0..11, where 0=C, 1=C#, ... 11=B)
+    - `octave` is computed as integer division by 12
+
+    This class is intentionally lightweight: the melody generator mostly works in
+    pitch-classes + octaves and only converts to MIDI numbers at the end.
     """
 
     def __init__(self, note=0):
@@ -82,6 +88,7 @@ class Note:
 
     @staticmethod
     def _coerce_other_to_int(other):
+        # Allow arithmetic with either another Note (use its MIDI number) or an int.
         if isinstance(other, Note):
             return other.get_note()
         if isinstance(other, int):

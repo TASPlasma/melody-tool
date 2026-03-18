@@ -10,6 +10,7 @@ from rhythm import Rhythm
 
 @dataclass(frozen=True, slots=True)
 class MidiExportSettings:
+    # These defaults make the exported file easy to audition in any DAW.
     tempo_bpm: float = 120.0
     ppq: int = 480
     channel: int = 0
@@ -35,6 +36,10 @@ def export_midi_clip(
     Timing:
     - Events are written sequentially.
     - Each event is a note with note_on at time=0, note_off after its duration.
+
+    Design choice:
+    - We use a fixed velocity and no legato/ties. This makes it easier to
+      validate pitch/rhythm logic before adding performance nuances.
     """
     mid = mido.MidiFile(type=1, ticks_per_beat=int(settings.ppq))
     track = mido.MidiTrack()
@@ -43,6 +48,7 @@ def export_midi_clip(
     track.name = name
     track.append(mido.MetaMessage("set_tempo", tempo=mido.bpm2tempo(float(settings.tempo_bpm)), time=0))
     if settings.program is not None:
+        # Optional instrument selection (General MIDI program number).
         track.append(
             mido.Message(
                 "program_change",
@@ -56,6 +62,8 @@ def export_midi_clip(
         note = int(ev["midi"])
         rhythm = ev.get("rhythm")
         if rhythm is None:
+            # Generator can emit None (or you might omit rhythm entirely). For auditioning,
+            # defaulting to 1/8 keeps the file playable.
             rhythm = Rhythm.from_symbol("1/8")
         if not isinstance(rhythm, Rhythm):
             raise TypeError(f"event['rhythm'] must be Rhythm or None, got {type(rhythm)}")
