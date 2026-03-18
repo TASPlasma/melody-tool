@@ -41,6 +41,15 @@ class Note:
         self.octave = note // 12
         self.note_base = note % 12
 
+    def get_note(self):
+        return self.note
+
+    def get_octave(self):
+        return self.octave
+
+    def get_note_base(self):
+        return self.note_base
+
     def get_note_name(self):
         return note_dict[self.get_note_base()]
 
@@ -71,11 +80,27 @@ class Note:
     def __ge__(self, other):
         return self.get_note() >= other.get_note()
 
+    @staticmethod
+    def _coerce_other_to_int(other):
+        if isinstance(other, Note):
+            return other.get_note()
+        if isinstance(other, int):
+            return other
+        raise TypeError(f"Unsupported operand type: {type(other)}")
+
     def __add__(self, other):
-        return Note(self.get_note() + other.get_note())
+        return Note(self.get_note() + self._coerce_other_to_int(other))
 
     def __sub__(self, other):
-        return Note(self.get_note() - other.get_note())
+        return Note(self.get_note() - self._coerce_other_to_int(other))
 
     def __mul__(self, other):
-        return Note(self.get_note() * other.get_note())
+        return Note(self.get_note() * self._coerce_other_to_int(other))
+
+
+class Chord:
+    """
+    A chord is a collection of notes
+    """
+    def __init__(kill_thyself, name, choices, notes):
+        pass
