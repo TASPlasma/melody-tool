@@ -79,3 +79,16 @@ class Note:
 
     def __mul__(self, other):
         return Note(self.get_note() * other.get_note())
+
+
+class Chord:
+    """
+    Chord objects can be initialized via any of the following:
+    1. The exact numerical notes
+    2. The names of notes
+    3. The choices of root, third, fifth, etc.
+    4. The name of the chord
+    """
+
+    def __init__(self, note_arr, note_name_arr, choice_arr, chord_name):
+        pass
