@@ -15,16 +15,16 @@ def main():
 
     # Example palette: sixteenth, eighth, quarter notes
     # (These are symbols understood by `Rhythm.from_symbol()`.)
-    rhythm_palette = ["1/16", "1/8", "1/4"]
+    rhythm_palette = ["1/8", "1/4"]
 
     mg = MelodyGenerator(
         chord=DummyChord(),
         scale=[0, 2, 3, 5, 7, 9, 11],  # C melodic minor
         note_distribution=Distribution([1] * 12),
         octave_distribution=Distribution(
-            [0, 0, 2, 4, 3, 1]),  # favor middle octaves (2-4)
+            [0, 0, 0, 0, 2, 4, 1, 0]),  # favor middle octaves (2-4)
         # Weight the palette; larger weight => more likely duration.
-        rhythm_distribution=Distribution([2, 6, 2]),
+        rhythm_distribution=Distribution([6, 2]),
         rhythm_palette=rhythm_palette,
         tempo_bpm=tempo_bpm,
         ppq=ppq,
@@ -50,6 +50,9 @@ def main():
         out_path="melody_test.mp4",
         fps=8,
         hold_frames=24,
+        events=events,
+        tempo_bpm=tempo_bpm,
+        embed_audio=True,
     )
     print(f"Wrote: {viz_out}")
 

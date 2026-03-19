@@ -1,3 +1,9 @@
 melody_test.mp4
 melody_test.mid
+Rhodes_Notes/
+__pycache__/
 melody_test.mp4
+__pycache__/generators.cpython-310.pyc
+__pycache__/melody_viz.cpython-310.pyc
+__pycache__/midi_export.cpython-310.pyc
+__pycache__/rhythm.cpython-310.pyc
